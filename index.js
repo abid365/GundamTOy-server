@@ -41,6 +41,11 @@ async function run() {
 
     // adding toys
 
+    app.post("/addtoys", async (req, res) => {
+      const toy = req.body;
+      console.log(toy);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
