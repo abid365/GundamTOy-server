@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -33,11 +33,11 @@ async function run() {
 
     const toyCollection = client.db("toystore").collection("toys");
 
-    app.get("/toys", async (req, res) => {
-      const cursor = toyCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
-    });
+    // app.get("/toys", async (req, res) => {
+    //   const cursor = toyCollection.find();
+    //   const result = await cursor.toArray();
+    //   res.send(result);
+    // });
 
     // adding toys
 
@@ -45,7 +45,27 @@ async function run() {
       const toy = req.body;
       const addedToy = await toyCollection.insertOne(toy);
       res.send(addedToy);
-      console.log(toy);
+      // console.log(toy);
+    });
+
+    // finding single toy or toy details
+
+    app.get("/toys/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const toy = await toyCollection.findOne(query);
+      res.send(toy);
+    });
+
+    // my toys
+    app.get("/toys", async (req, res) => {
+      console.log(req.query.SellerEmail);
+      let query = {};
+      if (req.query?.SellerEmail) {
+        query = { SellerEmail: req.query.SellerEmail };
+      }
+      const mytoys = await toyCollection.find(query).toArray();
+      res.send(mytoys);
     });
 
     // Send a ping to confirm a successful connection
