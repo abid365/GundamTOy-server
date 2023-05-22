@@ -29,7 +29,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    client.connect();
 
     const toyCollection = client.db("toystore").collection("toys");
 
@@ -53,7 +53,7 @@ async function run() {
     app.get("/toys/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const toy = await toyCollection.findOne(query);
+      const toy = await toyCollection.findOne(query).limit(20);
       res.send(toy);
     });
 
@@ -66,6 +66,14 @@ async function run() {
       }
       const mytoys = await toyCollection.find(query).toArray();
       res.send(mytoys);
+    });
+
+    // del operation
+    app.delete("/addtoys/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const deltoy = await toyCollection.deleteOne(query);
+      res.send(deltoy);
     });
 
     // Send a ping to confirm a successful connection
