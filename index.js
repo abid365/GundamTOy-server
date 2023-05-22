@@ -6,7 +6,13 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // middelewares
-app.use(cors());
+const corsOptions = {
+  origin: "*",
+  credentials: true,
+  optionSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 /* 
@@ -53,7 +59,7 @@ async function run() {
     app.get("/toys/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const toy = await toyCollection.findOne(query).limit(20);
+      const toy = await toyCollection.findOne(query);
       res.send(toy);
     });
 
@@ -74,6 +80,24 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const deltoy = await toyCollection.deleteOne(query);
       res.send(deltoy);
+    });
+
+    // update operation
+    app.put("/addtoydata/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const cursor = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedToy = req.body;
+      const Toy = {
+        $set: {
+          Price: updatedToy.Price,
+          AvailableQuantity: updatedToy.AvailableQuantity,
+          Description: updatedToy.Description,
+        },
+      };
+      const result = await toyCollection.updateOne(cursor, Toy, options);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
